@@ -97,25 +97,75 @@ app.get("/api/users", async (req, res) => {
 
 // Log
 app.get("/api/users/:_id/logs", async (req, res) => {
-  const {from, to, limit} = req.query;
+  let {from, to, limit} = req.query;
   console.log("Query para");
   console.log(req.query);
   const id = req.params._id;
+  /*
+  const foundUser = await User.findById(id);
+  if (!foundUser){
+    res.json({message: 'No user exists'});
+  }
+
+  let filter = {id};
+  let dateFilter = {};
+  if (from){
+    dateFilter['$gte'] = new Date(from);
+  }
+
+  if (to){
+    dateFilter['$lte'] = new Date(to);
+  }
+  if (from || to){
+    filter.dateFilter = dateFilter;
+  }
+  if (!limit){
+    limit = 100;
+  }
+
+  let exercises = await Exercise.find(filter).limit(+limit);
+  console.log("length");
+  console.log(exercises.length);
+  resultExercises = exercises.map((exercise) => {
+    return {
+      description: exercise.description,
+      duration: exercise.duration,
+      date: exercise.date.toDateString()
+    }
+  });
+
+  res.json({
+    username: foundUser.username,
+    count: resultExercises.length,
+    _id: id,
+    log: resultExercises
+  }); */
+
   const user = await User.findById(id).then(
     async function (user){
       let dateObj = {};
       if (from){
-        dateObj["$gte"] = new Date(from);
+        dateObj["$gte"] = new Date(from).toDateString();
       }
       if (to){
-        dateObj["$lte"] = new Date(to);
+        dateObj["$lte"] = new Date(to).toDateString();
       }
       let filter = { user_id: id};
       if (from || to){
         filter.date = dateObj;
       }
-      const exercises = await Exercise.find(filter).limit(+limit ?? 50);
-      //const exercises = await Exercise.find(filter);
+      /*if(!limit){
+        limit = 100;
+      } */
+      console.log("limit is " + limit);
+      console.log(filter);
+      const exercises2 = await Exercise.find(filter).then(
+        function (exercises){
+          if (limit){
+            exercises = exercises.slice(0,limit);
+          }
+          //const exercises = await Exercise.find(filter);
+      console.log("Exercisesssss ");
       console.log(exercises);
       const log = exercises.map( e => ({
         description: e.description,
@@ -130,12 +180,19 @@ app.get("/api/users/:_id/logs", async (req, res) => {
           log: log
         }
       );
+        }
+      ).catch(
+        function (err){
+          console.log(err);
+        }
+      );
+      
     }
   ).catch(
     function (err){
       console.log(err);
     }
-  );
+  ); 
 })
 
 
