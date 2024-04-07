@@ -70,12 +70,12 @@ app.post('/api/users/:id/exercises', async (req, res) => {
       );
       console.log(exercise);
       res.json(
-        {
-          _id: user._id,
+        {         
           username: user.username,
-          description: description,
-          duration: duration,
-          date: new Date(date).toDateString()
+          description: exercise.description,
+          duration: exercise.duration,
+          date: new Date(exercise.date).toDateString(),
+          _id: user._id,
         }
       );
     }
@@ -85,7 +85,7 @@ app.post('/api/users/:id/exercises', async (req, res) => {
     }
   );
 });
-
+// all users
 app.get("/api/users", async (req, res) => {
   const users = await User.find({}).select("_id username");
   if (!users){
@@ -114,8 +114,8 @@ app.get("/api/users/:_id/logs", async (req, res) => {
       if (from || to){
         filter.date = dateObj;
       }
-      //const exercises = await Exercise.find(filter).limit(+limit ?? 500);
-      const exercises = await Exercise.find(filter);
+      const exercises = await Exercise.find(filter).limit(+limit ?? 50);
+      //const exercises = await Exercise.find(filter);
       console.log(exercises);
       const log = exercises.map( e => ({
         description: e.description,
