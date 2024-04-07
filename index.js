@@ -52,25 +52,30 @@ app.post('/api/users', async (req, res) => {
 // Exercise
 app.post('/api/users/:id/exercises', async (req, res) => {
   const id = req.params.id;
+  console.log("body is ");
   console.log(req.body);
-  const {description, duration, date} = req.body;
+  const {id1, description, duration, date} = req.body;
+  console.log(description);
   const user = await User.findById(id).then(
     async function (user){
       console.log(user);
       const exerciseObj = new Exercise( {
         user_id: user._id,
-        description,
-        duration,
+        description: description,
+        duration: duration,
         date: date? new Date(date): new Date()
       });
-      const exercise = await exerciseObj.updateOne();
+      const exercise = await exerciseObj.save();
+      console.log('exercise'
+      );
+      console.log(exercise);
       res.json(
         {
           _id: user._id,
           username: user.username,
-          description: exercise.description,
-          duration: exercise.duration,
-          date: new Date(exercise.date).toDateString()
+          description: description,
+          duration: duration,
+          date: new Date(date).toDateString()
         }
       );
     }
