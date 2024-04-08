@@ -50,6 +50,7 @@ app.post('/api/users', async (req, res) => {
 });
 
 // Exercise
+
 app.post('/api/users/:id/exercises', async (req, res) => {
   const id = req.params.id;
   console.log("body is ");
@@ -94,6 +95,53 @@ app.get("/api/users", async (req, res) => {
     res.json(users);
   }
 });
+/*
+app.get("/api/users/:_id/logs", async (req, res) => {
+  let userId = req.params._id;
+  let user = await User.findById(userId);
+  if (user == null){
+    return res.json({error: "username not found"});
+  }
+  let [fromDate, toDate, limit] = [req.query.from, req.query.to, req.query.limit];
+  let findConditions = {userId: userId};
+ 
+  findConditions.date = {};
+  if (fromDate !== undefined && fromDate !== ""){
+    findConditions.date.$gte = new Date(fromDate);
+  }
+  if (findConditions.date.$gte === 'Invalid Date'){
+    return res.json({error: "invalid date"});
+  }
+  if (toDate !== undefined && toDate !== ""){
+    findConditions.date.$lte = new Date(toDate);
+  }
+  if (findConditions.date.$lte === 'Invalid Date'){
+    return res.json({error: "invalid date"});
+  }
+  let exercises;
+  if (limit){
+    exercises = Exercise.find(findConditions).limit(parseInt(limit));
+  } else {
+    exercises = Exercise.find({userId: userId});
+  }
+  exercises = await exercises.exec();
+  exercises = exercises.map((obj) => {
+    return (
+      {
+        description: obj.description,
+        duration: obj.duration,
+        date: new Date(obj.date).toDateString()
+      }
+    )
+  });
+  res.send({
+    username: user.username,
+    count: exercises.length,
+    _id: userId,
+    log: exercises
+  });
+});
+*/
 
 // Log
 app.get("/api/users/:_id/logs", async (req, res) => {
@@ -101,6 +149,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
   console.log("Query para");
   console.log(req.query);
   const id = req.params._id;
+  let count;
   /*
   const foundUser = await User.findById(id);
   if (!foundUser){
@@ -145,10 +194,10 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     async function (user){
       let dateObj = {};
       if (from){
-        dateObj["$gte"] = new Date(from).toDateString();
+        dateObj["$gte"] = new Date(from);
       }
       if (to){
-        dateObj["$lte"] = new Date(to).toDateString();
+        dateObj["$lte"] = new Date(to);
       }
       let filter = { user_id: id};
       if (from || to){
@@ -157,21 +206,24 @@ app.get("/api/users/:_id/logs", async (req, res) => {
       /*if(!limit){
         limit = 100;
       } */
-      console.log("limit is " + limit);
-      console.log(filter);
+      //console.log("limit is " + limit);
+      //console.log(filter);
       const exercises2 = await Exercise.find(filter).then(
         function (exercises){
+          //count = exercises.length;
+          //console.log("count is " + count);
           if (limit){
             exercises = exercises.slice(0,limit);
           }
           //const exercises = await Exercise.find(filter);
-      console.log("Exercisesssss ");
-      console.log(exercises);
+      //console.log("Exercisesssss ");
+      //console.log(exercises);
       const log = exercises.map( e => ({
         description: e.description,
         duration: e.duration,
         date: e.date.toDateString()
       }));
+      //console.log("Exercises length is " + exercises.length);
       res.json(
         {
           username: user.username,
